@@ -1,0 +1,71 @@
+<app-nav-bar></app-nav-bar>
+
+<div class="container mx-auto px-4 py-6">
+  <div class="flex justify-between items-center mb-6">
+    <h1 class="text-3xl font-bold">Transacties</h1>
+    
+    <a routerLink="/transactions/add" class="bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700">
+      + Nieuwe Transactie
+    </a>
+  </div>
+  
+  <div *ngIf="loading" class="flex justify-center items-center h-64">
+    <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+  </div>
+  
+  <div *ngIf="!loading && transactions.length === 0" class="bg-white rounded-lg shadow-md p-10 text-center">
+    <p class="text-gray-600 mb-4">Je hebt nog geen transacties toegevoegd.</p>
+    <a routerLink="/transactions/add" class="text-blue-600 hover:underline">Voeg je eerste transactie toe →</a>
+  </div>
+  
+  <div *ngIf="!loading && transactions.length > 0" class="bg-white rounded-lg shadow-md">
+    <div class="overflow-x-auto">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Datum</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Asset</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aantal</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Prijs</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Totaal</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actie</th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+          <tr *ngFor="let transaction of transactions">
+            <td class="px-6 py-4 whitespace-nowrap">
+              <div class="text-sm text-gray-900">{{ formatDate(transaction.date) }}</div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <div *ngIf="getAssetById(transaction.assetId)" class="text-sm font-medium text-gray-900">
+                {{ getAssetById(transaction.assetId)?.symbol }} - {{ getAssetById(transaction.assetId)?.name }}
+              </div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full"
+                    [ngClass]="{'bg-green-100 text-green-800': transaction.type === 'buy', 
+                                'bg-red-100 text-red-800': transaction.type === 'sell'}">
+                {{ transaction.type === 'buy' ? 'Koop' : 'Verkoop' }}
+              </span>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+              {{ transaction.quantity }}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+              € {{ transaction.price.toFixed(2) }}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+              € {{ calculateTotal(transaction).toFixed(2) }}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+              <button (click)="deleteTransaction(transaction.id!)" class="text-red-600 hover:text-red-900">
+                Verwijderen
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,107 @@
+<app-nav-bar></app-nav-bar>
+
+<div class="container mx-auto px-4 py-6">
+  <div *ngIf="loading" class="flex justify-center items-center h-64">
+    <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+  </div>
+  
+  <div *ngIf="!loading && asset">
+    <div class="flex flex-col md:flex-row justify-between items-start mb-6">
+      <div>
+        <h1 class="text-3xl font-bold">{{ asset.symbol }}</h1>
+        <p class="text-gray-600">{{ asset.name }}</p>
+        <span class="px-2 py-1 mt-2 inline-flex text-xs leading-5 font-semibold rounded-full"
+              [ngClass]="{'bg-blue-100 text-blue-800': asset.assetType === 'stock', 
+                        'bg-green-100 text-green-800': asset.assetType === 'etf'}">
+          {{ asset.assetType === 'stock' ? 'Aandeel' : 'ETF' }}
+        </span>
+      </div>
+      
+      <div class="mt-4 md:mt-0">
+        <h2 class="text-sm text-gray-500">Huidige prijs</h2>
+        <p class="text-3xl font-bold">€ {{ asset.currentPrice?.toFixed(2) || '0.00' }}</p>
+      </div>
+    </div>
+    
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+      <div class="bg-white rounded-lg shadow-md p-6">
+        <h2 class="text-sm font-medium text-gray-500 mb-1">Gem. Aankoopprijs</h2>
+        <p class="text-2xl font-bold text-gray-900">€ {{ averageBuyPrice.toFixed(2) }}</p>
+      </div>
+      
+      <div class="bg-white rounded-lg shadow-md p-6">
+        <h2 class="text-sm font-medium text-gray-500 mb-1">Aantal Aandelen</h2>
+        <p class="text-2xl font-bold text-gray-900">{{ totalQuantity }}</p>
+      </div>
+      
+      <div class="bg-white rounded-lg shadow-md p-6">
+        <h2 class="text-sm font-medium text-gray-500 mb-1">Winst/Verlies</h2>
+        <p [ngClass]="{'text-green-600': profitLoss >= 0, 'text-red-600': profitLoss < 0}" 
+           class="text-2xl font-bold">
+          {{ profitLoss >= 0 ? '+' : '' }}€ {{ profitLoss.toFixed(2) }}
+          <span class="text-sm font-normal">
+            ({{ profitLossPercentage >= 0 ? '+' : '' }}{{ profitLossPercentage.toFixed(2) }}%)
+          </span>
+        </p>
+      </div>
+    </div>
+    
+    <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+      <h2 class="text-xl font-semibold mb-4">Historische Koersen</h2>
+      <div class="h-80">
+        <canvas id="priceChart"></canvas>
+      </div>
+    </div>
+    
+    <div class="bg-white rounded-lg shadow-md p-6">
+      <h2 class="text-xl font-semibold mb-4">Transacties</h2>
+      
+      <div *ngIf="transactions.length === 0" class="text-center py-4">
+        <p class="text-gray-500">Geen transacties gevonden voor dit aandeel</p>
+      </div>
+      
+      <div *ngIf="transactions.length > 0" class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Datum</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aantal</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Prijs</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Totaal</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            <tr *ngFor="let transaction of transactions">
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                {{ transaction.date | date:'dd-MM-yyyy' }}
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full"
+                      [ngClass]="{'bg-green-100 text-green-800': transaction.type === 'buy', 
+                                'bg-red-100 text-red-800': transaction.type === 'sell'}">
+                  {{ transaction.type === 'buy' ? 'Koop' : 'Verkoop' }}
+                </span>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                {{ transaction.quantity }}
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                € {{ transaction.price.toFixed(2) }}
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                € {{ (transaction.quantity * transaction.price).toFixed(2) }}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      
+      <div class="mt-4 flex justify-end">
+        <a routerLink="/transactions/add" [queryParams]="{assetId: asset.id}" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+          Transactie Toevoegen
+        </a>
+      </div>
+    </div>
+  </div>
+</div>

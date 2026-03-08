@@ -1,0 +1,10 @@
+{
+    "/api/finnhub": {
+      "target": "https://finnhub.io/api/v1",
+      "secure": true,
+      "changeOrigin": true,
+      "pathRewrite": {
+        "^/api/finnhub": ""
+      }
+    }
+  }
