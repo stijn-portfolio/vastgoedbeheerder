@@ -1,0 +1,34 @@
+/* src/app/shared/components/confirmation-dialog/confirmation-dialog.component.css */
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideIn {
+  from {
+    transform: scale(0.95) translateY(-10px);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
+}
+
+.dialog-backdrop {
+  animation: fadeIn 0.2s ease-out forwards;
+}
+
+.dialog-content {
+  animation: slideIn 0.2s ease-out forwards;
+}
+
+/* Focus trap voor accessibility */
+.dialog-content:focus {
+  outline: none;
+}

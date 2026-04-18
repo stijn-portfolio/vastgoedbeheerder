@@ -1,0 +1,295 @@
+<div class="container mx-auto p-4">
+
+  @if(isLoading()) {
+  <div class="flex items-center justify-center h-screen">
+    <div class="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+  </div>
+  }
+
+
+
+  @if (vastgoed(); as vg) { <!-- Alias vastgoed to vg for easier reference -->
+  <div class="bg-white shadow-md rounded-lg overflow-hidden p-6">
+    <div class="flex justify-between items-start mb-6 flex-wrap gap-2"> <!-- Added flex-wrap and gap -->
+      <h1 class="text-3xl font-bold">{{ vg.naam }}         
+        <span class="px-2 py-1 text-xs font-semibold rounded-full mb-4"
+              [class.bg-green-100]="isVastgoedVerhuurd()" 
+              [class.text-green-800]="isVastgoedVerhuurd()"
+              [class.bg-red-100]="!isVastgoedVerhuurd()" 
+              [class.text-red-800]="!isVastgoedVerhuurd()">
+          {{ isVastgoedVerhuurd() ? 'Verhuurd' : 'Beschikbaar' }}
+        </span></h1>
+      
+      <div class="flex space-x-2 flex-shrink-0"> <!-- Added flex-shrink-0 -->
+        @if (authService.isAdmin()) {
+        <a [routerLink]="['/vastgoed/edit', vg.id]" class="bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700">
+          Bewerken
+        </a>
+        <button (click)="deleteVastgoed()" class="bg-red-600 text-white py-2 px-4 rounded hover:bg-red-700">
+          Verwijderen
+        </button>
+        }
+        <a routerLink="/vastgoed" class="bg-gray-500 text-white py-2 px-4 rounded hover:bg-gray-600">
+          Terug
+        </a>
+      </div>
+    </div>
+
+    <!-- Tabs navigatie -->
+    <div class="border-b border-gray-200 mb-6">
+      <nav class="flex space-x-8">
+        <button (click)="setActiveTab('details')" [class.border-b-2]="activeTab() === 'details'"
+          [class.border-blue-500]="activeTab() === 'details'" [class.text-blue-600]="activeTab() === 'details'"
+          [class.text-gray-500]="activeTab() !== 'details'" [class.hover:text-gray-700]="activeTab() !== 'details'"
+          class="py-4 px-1 font-medium text-sm focus:outline-none">
+          Details
+        </button>
+        <!-- Verwijder de admin-check voor de transacties tab -->
+        <button (click)="setActiveTab('transacties')" [class.border-b-2]="activeTab() === 'transacties'"
+          [class.border-blue-500]="activeTab() === 'transacties'" [class.text-blue-600]="activeTab() === 'transacties'"
+          [class.text-gray-500]="activeTab() !== 'transacties'"
+          [class.hover:text-gray-700]="activeTab() !== 'transacties'"
+          class="py-4 px-1 font-medium text-sm focus:outline-none">
+          Financiële Transacties
+        </button>
+      </nav>
+    </div>
+
+    <!-- Tab Content -->
+    @switch (activeTab()) {
+    @case ('details') {
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <!-- Vastgoed details -->
+      <div>
+        <h2 class="text-xl font-semibold mb-4">Vastgoed details</h2>
+        <div class="space-y-2">
+          <p><span class="font-medium">Adres:</span> {{ vg.adres }}</p>
+          <p><span class="font-medium">Type:</span> {{ vg.type }}</p>
+          <p><span class="font-medium">Kamers:</span> {{ vg.kamers }}</p>
+          <p><span class="font-medium">Oppervlakte:</span> {{ vg.oppervlakte }} m²</p>
+        </div>
+      </div>
+
+      <!-- Syndicus -->
+      <div>
+        <h2 class="text-xl font-semibold mb-4">Syndicus</h2>
+        @if (verhuurder(); as vh) {
+        <div class="space-y-2">
+          <p><span class="font-medium">Naam:</span> {{ vh.naam }}</p>
+          <p><span class="font-medium">Email:</span> {{ vh.email }}</p>
+          <p><span class="font-medium">Telefoon:</span> {{ vh.telefoon }}</p>
+        </div>
+        } @else {
+        <div class="text-gray-500">
+          Syndicus informatie wordt geladen of is niet beschikbaar...
+        </div>
+        }
+      </div>
+
+      <!-- Huurcontracten -->
+      <div>               
+        <h2 class="text-xl font-semibold mb-2">Huurder</h2>    
+
+        @if (isVastgoedVerhuurd() && actiefContract(); as contract) {
+        <!-- Toon actieve huurder informatie -->
+        @if (getHuurder(contract.huurderID); as huurder) {
+      <div class="space-y-2">
+            <p class="font-medium m">{{ huurder.naam }}</p>
+            <div class="space-y-2 text-sm">
+              <p><span class="font-medium">Contact:</span> {{ huurder.email }}</p>
+              <p><span class="font-medium">Telefoon:</span> {{ huurder.telefoon }}</p>
+              <p><span class="font-medium">Contract:</span> {{ contract.startDatum | date:'dd-MM-yyyy' }} tot {{ contract.eindDatum | date:'dd-MM-yyyy' }}</p>
+              <p><span class="font-medium">Huurprijs:</span> €{{ contract.huurprijs }}/maand</p>
+            </div>
+          </div>
+        }    
+        } @else {
+        <div class="text-gray-500 pt-2">
+      Geen actieve huurcontracten gevonden.
+        </div>
+        }
+      </div>
+    </div>
+    }
+
+    @case ('transacties') {
+    <!-- Verwijder de admin-check hier -->
+    <div class="mb-6">
+      <!-- Financieel overzicht -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <!-- Inkomsten card -->
+        <div class="bg-gray-50 rounded-lg p-5 border border-gray-200">
+          <h3 class="text-lg font-medium text-gray-700 mb-2">Totale Inkomsten</h3>
+          <p class="text-2xl font-bold text-green-600">€{{ totalIncome() | customNumber }}</p>
+        </div>
+
+        <!-- Uitgaven card -->
+        <div class="bg-gray-50 rounded-lg p-5 border border-gray-200">
+          <h3 class="text-lg font-medium text-gray-700 mb-2">Totale Uitgaven</h3>
+          <p class="text-2xl font-bold text-red-600">€{{ totalExpenses() | customNumber }}</p>
+        </div>
+
+        <!-- Balans card -->
+        <div class="bg-gray-50 rounded-lg p-5 border border-gray-200">
+          <h3 class="text-lg font-medium text-gray-700 mb-2">Balans</h3>
+          <p class="text-2xl font-bold" [class.text-green-600]="balance() >= 0" [class.text-red-600]="balance() < 0">
+            €{{ balance() | customNumber }}
+          </p>
+        </div>
+      </div>
+
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-xl font-semibold">Transacties</h2>
+        <a [routerLink]="['/transactions/add']" [queryParams]="{vastgoedId: vg.id}"
+          class="bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700">
+          Nieuwe Transactie
+        </a>
+      </div>
+
+      <!-- Sorteer opties -->
+      <div class="flex justify-end mb-4 space-x-2">
+        <div class="flex items-center">
+          <span class="text-sm text-gray-600 mr-2">Sorteren:</span>
+          <button (click)="sortTransactionsBy('datum')"
+            class="text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 py-1 px-3 rounded mr-1"
+            [title]="'Sorteer op datum (' + (sortState()?.field === 'datum' && !sortState()?.ascending ? 'aflopend' : 'oplopend') + ')'">
+            Datum
+            <span *ngIf="sortState()?.field === 'datum'">
+              {{ sortState()?.ascending ? '↑' : '↓' }}
+            </span>
+          </button>
+          <button (click)="sortTransactionsBy('bedrag')" 
+            class="text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 py-1 px-3 rounded mr-1"
+            [title]="'Sorteer op bedrag (' + (sortState()?.field === 'bedrag' && !sortState()?.ascending ? 'aflopend' : 'oplopend') + ')'">
+            Bedrag
+            <span *ngIf="sortState()?.field === 'bedrag'">
+              {{ sortState()?.ascending ? '↑' : '↓' }}
+            </span>
+          </button>
+          <button (click)="sortTransactionsBy('type')" 
+            class="text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 py-1 px-3 rounded"
+            [title]="'Sorteer op type (' + (sortState()?.field === 'type' && !sortState()?.ascending ? 'aflopend' : 'oplopend') + ')'">
+            Type
+            <span *ngIf="sortState()?.field === 'type'">
+              {{ sortState()?.ascending ? '↑' : '↓' }}
+            </span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Transactie Tabel -->
+      <div class="overflow-x-auto">
+        <table class="min-w-full bg-white border border-gray-200 rounded-lg">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
+                <button class="flex items-center hover:text-gray-700" (click)="sortTransactionsBy('datum')">
+                  Datum
+                  @if (sortState()?.field === 'datum') {
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        [attr.d]="sortState()?.ascending ? 'M5 15l7-7 7 7' : 'M19 9l-7 7-7-7'" />
+                    </svg>
+                  }
+                </button>
+              </th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
+                <button class="flex items-center hover:text-gray-700" (click)="sortTransactionsBy('bedrag')">
+                  Bedrag
+                  @if (sortState()?.field === 'bedrag') {
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        [attr.d]="sortState()?.ascending ? 'M5 15l7-7 7 7' : 'M19 9l-7 7-7-7'" />
+                    </svg>
+                  }
+                </button>
+              </th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
+                <button class="flex items-center hover:text-gray-700" (click)="sortTransactionsBy('type')">
+                  Type
+                  @if (sortState()?.field === 'type') {
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        [attr.d]="sortState()?.ascending ? 'M5 15l7-7 7 7' : 'M19 9l-7 7-7-7'" />
+                    </svg>
+                  }
+                </button>
+              </th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
+                Categorie
+              </th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
+                Omschrijving
+              </th>
+              <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
+                Acties
+              </th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-200">
+            @for (transaction of sortedTransactions(); track transaction.id) {
+            <tr class="hover:bg-gray-50">
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ transaction.datum | date:'dd-MM-yyyy' }}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium"
+                [class.text-green-600]="transaction.type === 'INKOMST'"
+                [class.text-red-600]="transaction.type === 'UITGAVE'">
+                €{{ transaction.bedrag | customNumber }}
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">
+                <span class="px-2 py-1 rounded-full text-xs font-medium"
+                  [class.bg-green-100]="transaction.type === 'INKOMST'"
+                  [class.text-green-800]="transaction.type === 'INKOMST'"
+                  [class.bg-red-100]="transaction.type === 'UITGAVE'"
+                  [class.text-red-800]="transaction.type === 'UITGAVE'">
+                  {{ transaction.type === 'INKOMST' ? 'Inkomst' : 'Uitgave' }}
+                </span>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ transaction.categorie }}</td>
+              <td class="px-6 py-4 text-sm text-gray-900">{{ transaction.omschrijving }}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                <div class="flex justify-end space-x-2">
+                  <a [routerLink]="['/transactions/edit', transaction.id]" [queryParams]="{vastgoedId: vg.id}"
+                    class="text-blue-600 hover:text-blue-900" title="Bewerken">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                      stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                    </svg>
+                  </a>
+                  <button (click)="deleteTransaction(transaction.id)" class="text-red-600 hover:text-red-900"
+                    title="Verwijderen">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                      stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                  </button>
+                </div>
+              </td>
+            </tr>
+            } @empty {
+            <tr>
+              <td colspan="6" class="px-6 py-8 text-center text-gray-500">
+                Geen transacties gevonden voor dit vastgoed.
+                <span class="block mt-1">Klik op "Nieuwe Transactie" om te beginnen.</span>
+              </td>
+            </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+    }
+
+    } <!-- Einde @switch -->
+  </div>
+  } @else {
+  @if (!errorMessage) {
+  <div class="text-center p-10">
+    <p class="text-gray-500">Vastgoed wordt geladen...</p>
+    <!-- Optioneel: voeg een spinner toe -->
+  </div>
+  }
+  <!-- Als er wel een errorMessage is, wordt die bovenaan al getoond -->
+  }
+</div>

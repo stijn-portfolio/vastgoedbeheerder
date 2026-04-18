@@ -1,0 +1,111 @@
+<div class="container mx-auto p-4">
+  @if(isLoading) {
+    <div class="flex items-center justify-center h-screen">
+      <div class="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+    </div>
+  }
+  
+  <h1 class="text-3xl font-bold mb-6">{{ isEditMode ? 'Huurder Bewerken' : 'Nieuwe Huurder Toevoegen' }}</h1>
+   
+  @if (errorMessage) {
+    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+      {{ errorMessage }}
+    </div>
+  }
+   
+  <div class="bg-white shadow-md rounded-lg overflow-hidden p-6">
+    <form (ngSubmit)="onSubmit()" #huurderForm="ngForm">
+      <!-- Naam -->
+      <div class="mb-4">
+        <label for="naam" class="block text-sm font-medium text-gray-700 mb-1">Naam</label>
+        <input
+          type="text"
+          id="naam"
+          name="naam"
+          [(ngModel)]="huurder.naam"
+          #naam="ngModel"
+          required
+          minlength="3"
+          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500"
+        >
+        @if (naam.invalid && (naam.dirty || naam.touched || isSubmitted)) {
+          <div class="text-red-500 text-sm mt-1">
+            @if (naam.errors?.['required']) {
+              <div>Naam is verplicht</div>
+            }
+            @if (naam.errors?.['minlength']) {
+              <div>Naam moet minimaal 3 karakters bevatten</div>
+            }
+          </div>
+        }
+      </div>
+     
+      <!-- Email -->
+      <div class="mb-4">
+        <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+        <input
+          type="email"
+          id="email"
+          name="email"
+          [(ngModel)]="huurder.email"
+          #email="ngModel"
+          required
+          pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
+          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500"
+        >
+        @if (email.invalid && (email.dirty || email.touched || isSubmitted)) {
+          <div class="text-red-500 text-sm mt-1">
+            @if (email.errors?.['required']) {
+              <div>Email is verplicht</div>
+            }
+            @if (email.errors?.['pattern']) {
+              <div>Voer een geldig emailadres in</div>
+            }
+          </div>
+        }
+      </div>
+     
+      <!-- Telefoon -->
+<div class="mb-4">
+  <label for="telefoon" class="block text-sm font-medium text-gray-700 mb-1">Telefoon</label>
+  <input
+    type="tel"
+    id="telefoon"
+    name="telefoon"
+    [(ngModel)]="huurder.telefoon"
+    #telefoon="ngModel"
+    required
+    pattern="^(0[1-9][0-9]{7}|04[0-9]{8})$"
+    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500"
+  >
+  @if (telefoon.invalid && (telefoon.dirty || telefoon.touched || isSubmitted)) {
+    <div class="text-red-500 text-sm mt-1">
+      @if (telefoon.errors?.['required']) {
+        <div>Telefoonnummer is verplicht</div>
+      }
+      @if (telefoon.errors?.['pattern']) {
+        <div>Voer een geldig Belgisch telefoonnummer in (vast of mobiel, 10 cijfers, beginnend met 0)</div>
+      }
+    </div>
+  }
+</div>
+     
+      <div class="mt-6 flex justify-end space-x-3">
+        <button
+          type="button"
+          (click)="router.navigate(['/huurders'])"
+          class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+        >
+          Annuleren
+        </button>
+        <button
+          type="submit"
+          [disabled]="huurderForm.invalid"
+          class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:bg-gray-400"
+        >
+          {{ isEditMode ? 'Bijwerken' : 'Toevoegen' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

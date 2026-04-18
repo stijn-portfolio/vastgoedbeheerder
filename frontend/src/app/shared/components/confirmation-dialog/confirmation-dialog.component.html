@@ -1,0 +1,75 @@
+<!-- src/app/shared/components/confirmation-dialog/confirmation-dialog.component.html -->
+@for (dialog of dialogs(); track dialog.id) {
+  <!-- Backdrop -->
+  <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+       (click)="onBackdropClick($event, dialog.id)"
+       [@fadeIn]="true">
+    
+    <!-- Dialog -->
+    <div class="bg-white rounded-lg shadow-xl max-w-md w-full transform transition-all"
+         [@slideIn]="true"
+         (click)="$event.stopPropagation()">
+      
+      <!-- Header -->
+      <div class="px-6 py-4 border-b border-gray-200">
+        <div class="flex items-center">
+          <!-- Icon -->
+          <div class="flex-shrink-0 mr-4">
+            <svg [class]="'w-6 h-6 ' + getIconColor(dialog.type || 'danger')" 
+                 fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                    [attr.d]="getIconPath(dialog.type || 'danger')"></path>
+            </svg>
+          </div>
+          
+          <!-- Title -->
+          <h3 class="text-lg font-semibold text-gray-900">
+            {{ dialog.title }}
+          </h3>
+        </div>
+      </div>
+      
+      <!-- Body -->
+      <div class="px-6 py-4">
+        <!-- Main message -->
+        <p class="text-gray-700 mb-3">
+          {{ dialog.message }}
+        </p>
+        
+        <!-- Warning message (if present) -->
+        @if (dialog.warning) {
+          <div class="bg-yellow-50 border-l-4 border-yellow-400 p-3 mb-4">
+            <div class="flex">
+              <svg class="w-5 h-5 text-yellow-400 mr-2 mt-0.5 flex-shrink-0" 
+                   fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" 
+                      d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" 
+                      clip-rule="evenodd"></path>
+              </svg>
+              <p class="text-sm text-yellow-800">
+                {{ dialog.warning }}
+              </p>
+            </div>
+          </div>
+        }
+      </div>
+      
+      <!-- Footer -->
+      <div class="px-6 py-4 bg-gray-50 border-t border-gray-200 flex justify-end space-x-3 rounded-b-lg">
+        <!-- Cancel button -->
+        <button type="button"
+                (click)="cancel(dialog.id)"
+                class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors duration-200">
+          {{ dialog.cancelText }}
+        </button>
+        
+        <!-- Confirm button -->
+        <button type="button"
+                (click)="confirm(dialog.id)"
+                [class]="getConfirmButtonClasses(dialog.type || 'danger')">
+          {{ dialog.confirmText }}
+        </button>
+      </div>
+    </div>
+  </div>
+}

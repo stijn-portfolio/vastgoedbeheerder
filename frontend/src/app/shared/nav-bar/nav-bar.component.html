@@ -1,0 +1,244 @@
+<nav class="bg-gradient-to-r from-blue-700 to-blue-900 p-4 shadow-md">
+  <div class="container mx-auto flex justify-between items-center">
+    <div>
+      <a routerLink="/" class="text-white text-xl font-bold flex items-center">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24"
+          stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+        </svg>
+        Vastgoedbeheerder
+      </a>
+    </div>
+
+    <!-- Menu voor desktop -->
+    <div class="hidden md:flex items-center space-x-1">
+      <a routerLink="/" routerLinkActive="bg-blue-700" [routerLinkActiveOptions]="{exact: true}"
+        class="text-white px-3 py-2 rounded hover:bg-blue-700 transition duration-300 flex items-center">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24"
+          stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+        </svg>
+        Dashboard
+      </a>
+
+      <!-- Toon alleen voor ingelogde gebruikers -->
+      @if (isAuthenticated()) {
+
+      <!-- Toon alleen als gebruiker accountant is -->
+      @if(isAccountant()) {
+      <a routerLink="/transactions" routerLinkActive="bg-blue-700"
+        class="text-white px-3 py-2 rounded hover:bg-blue-700 transition duration-300 flex items-center">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24"
+          stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-2m4-10h-4m4 0v4m0-4l-5 5" />
+        </svg>
+        Financieel
+      </a>}
+
+      <!-- Toon alleen als gebruiker admin rechten heeft -->
+      @if (hasAdminAccess()) {
+
+      <a routerLink="/vastgoed" routerLinkActive="bg-blue-700"
+        class="text-white px-3 py-2 rounded hover:bg-blue-700 transition duration-300 flex items-center">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24"
+          stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+        </svg>
+        Vastgoed
+      </a>
+
+
+      <a routerLink="/huurders" routerLinkActive="bg-blue-700"
+        class="text-white px-3 py-2 rounded hover:bg-blue-700 transition duration-300 flex items-center">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24"
+          stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+        </svg>
+        Huurders
+      </a>
+
+      <a routerLink="/syndici" routerLinkActive="bg-blue-700"
+        class="text-white px-3 py-2 rounded hover:bg-blue-700 transition duration-300 flex items-center">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24"
+          stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+        </svg>
+        Syndici
+      </a>
+
+      <a routerLink="/contracten" routerLinkActive="bg-blue-700"
+        class="text-white px-3 py-2 rounded hover:bg-blue-700 transition duration-300 flex items-center">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24"
+          stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+        </svg>
+        Contracten
+      </a>
+
+      <a routerLink="/transactions" routerLinkActive="bg-blue-700"
+        class="text-white px-3 py-2 rounded hover:bg-blue-700 transition duration-300 flex items-center">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24"
+          stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+        </svg>
+        Financieel
+      </a>
+
+      <!-- Nieuwe menu-items: Documenten en Rapportages (uitgeschakeld maar wel zichtbaar) -->
+      <div class="relative group">
+        <span class="text-gray-300 px-3 py-2 rounded flex items-center cursor-not-allowed">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24"
+            stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+          </svg>
+          Documenten
+        </span>
+        <div class="absolute left-0 mt-1 hidden group-hover:block bg-white text-blue-800 p-2 rounded shadow-lg text-sm">
+          Binnenkort beschikbaar
+        </div>
+      </div>
+
+      <div class="relative group">
+        <span class="text-gray-300 px-3 py-2 rounded flex items-center cursor-not-allowed">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24"
+            stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z" />
+          </svg>
+          Rapportages
+        </span>
+        <div class="absolute left-0 mt-1 hidden group-hover:block bg-white text-blue-800 p-2 rounded shadow-lg text-sm">
+          Binnenkort beschikbaar
+        </div>
+      </div>
+      }
+
+      <!-- Profielavatar voor ingelogde gebruikers in desktop menu -->
+      <div class="relative ml-2 group">
+        <!-- Avatar met initialen -->
+        @if (authService.currentUserValue?.username) {
+        <div class="w-9 h-9 rounded-full flex items-center justify-center text-white font-semibold cursor-pointer"
+          [ngClass]="authService.isAdmin() ? 'bg-gradient-to-r from-purple-600 to-indigo-700' : 'bg-gradient-to-r from-blue-400 to-teal-500'">
+          {{ getUserInitials(authService.currentUserValue?.username) }}
+        </div>
+
+        <!-- Tooltip bij hover - gecentreerd onder de avatar -->
+        <div
+          class="absolute transform -translate-x-1/2 left-1/2 mt-1 hidden group-hover:block bg-white text-gray-800 p-3 rounded shadow-lg text-sm w-48 z-10">
+          <p class="font-semibold mb-1">{{ authService.currentUserValue?.username }}</p>
+          <p class="text-gray-600">{{ authService.currentUserValue?.email }}</p>
+          <div class="mt-2 pt-2 border-t border-gray-200">
+            <span class="inline-block px-2 py-1 rounded text-xs font-semibold"
+              [ngClass]="authService.isAdmin() ? 'bg-purple-100 text-purple-800' : 'bg-blue-100 text-blue-800'">
+              <!-- {{ authService.isAdmin() ? 'Administrator' : 'Gebruiker' }} -->
+              @if(hasAdminAccess()) {
+              <span class="bg-purple-100 text-purple-800 px-2 py-1 rounded text-xs font-semibold">Administrator</span>
+              } @else if (isAccountant()) {
+              <span class="bg-purple-100 text-purple-800 px-2 py-1 rounded text-xs font-semibold">Accountant</span>
+              }
+              @else {
+              <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs font-semibold">Gebruiker</span>
+              }
+
+            </span>
+          </div>
+          <button (click)="logout()"
+            class="mt-2 w-full bg-red-500 hover:bg-red-600 text-white py-1 px-2 rounded text-xs transition duration-300">
+            Uitloggen
+          </button>
+        </div>
+        }
+      </div>
+      } @else {
+      <a routerLink="/login" routerLinkActive="bg-blue-700"
+        class="text-white px-3 py-2 rounded hover:bg-blue-700 transition duration-300 flex items-center">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24"
+          stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+        </svg>
+        Login
+      </a>
+      }
+    </div>
+
+    <!-- Hamburger menu voor mobiel -->
+    <div class="md:hidden flex items-center">
+      <!-- Avatar voor mobiel (alleen voor ingelogde gebruikers) -->
+      <!-- Avatar voor mobiel (alleen voor ingelogde gebruikers) -->
+      @if (isAuthenticated() && authService.currentUserValue?.username) {
+      <div class="relative mr-3 group">
+        <div class="w-8 h-8 rounded-full flex items-center justify-center text-white font-semibold"
+          [ngClass]="authService.isAdmin() ? 'bg-gradient-to-r from-purple-600 to-indigo-700' : 'bg-gradient-to-r from-blue-400 to-teal-500'">
+          {{ getUserInitials(authService.currentUserValue?.username) }}
+        </div>
+        <!-- Tooltip voor mobiel - gecentreerd onder de avatar -->
+        <div
+          class="absolute transform -translate-x-1/2 left-1/2 mt-1 hidden group-hover:block bg-white text-gray-800 p-2 rounded shadow-lg text-xs w-36 z-10">
+          {{ authService.currentUserValue?.username }}
+          <div class="mt-1">
+            <span class="inline-block px-1 rounded text-xs"
+              [ngClass]="authService.isAdmin() ? 'bg-purple-100 text-purple-800' : 'bg-blue-100 text-blue-800'">
+              {{ authService.isAdmin() ? 'Administrator' : 'Gebruiker' }}
+            </span>
+          </div>
+        </div>
+      </div>
+      }
+
+      <button type="button" (click)="toggleMenu()"
+        class="text-white hover:bg-blue-700 rounded p-1 transition duration-300">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Mobiel menu -->
+  @if (isMenuOpen()) {
+  <div class="md:hidden bg-blue-700 mt-2 rounded-lg shadow-lg">
+    <div class="px-2 pt-2 pb-3 space-y-1">
+      <a routerLink="/" routerLinkActive="bg-blue-600" [routerLinkActiveOptions]="{exact: true}" (click)="toggleMenu()"
+        class="text-white block px-3 py-2 rounded hover:bg-blue-600 transition duration-300">Dashboard</a>
+
+      @if (isAuthenticated()) {
+      <a routerLink="/vastgoed" routerLinkActive="bg-blue-600" (click)="toggleMenu()"
+        class="text-white block px-3 py-2 rounded hover:bg-blue-600 transition duration-300">Vastgoed</a>
+
+      @if (hasAdminAccess()) {
+      <a routerLink="/huurders" routerLinkActive="bg-blue-600" (click)="toggleMenu()"
+        class="text-white block px-3 py-2 rounded hover:bg-blue-600 transition duration-300">Huurders</a>
+      <a routerLink="/syndici" routerLinkActive="bg-blue-600" (click)="toggleMenu()"
+        class="text-white block px-3 py-2 rounded hover:bg-blue-600 transition duration-300">Syndici</a>
+      <a routerLink="/contracten" routerLinkActive="bg-blue-600" (click)="toggleMenu()"
+        class="text-white block px-3 py-2 rounded hover:bg-blue-600 transition duration-300">Contracten</a>
+      <a routerLink="/transactions" routerLinkActive="bg-blue-600" (click)="toggleMenu()"
+        class="text-white block px-3 py-2 rounded hover:bg-blue-600 transition duration-300">Financieel</a>
+
+      <!-- Uitgeschakelde mobiele menu-items -->
+      <span class="text-gray-300 block px-3 py-2 rounded cursor-not-allowed">Documenten (Binnenkort)</span>
+      <span class="text-gray-300 block px-3 py-2 rounded cursor-not-allowed">Rapportages (Binnenkort)</span>
+      }
+
+      <button (click)="logout()"
+        class="text-white block w-full text-left px-3 py-2 rounded hover:bg-blue-600 transition duration-300">Logout</button>
+      } @else {
+      <a routerLink="/login" routerLinkActive="bg-blue-600" (click)="toggleMenu()"
+        class="text-white block px-3 py-2 rounded hover:bg-blue-600 transition duration-300">Login</a>
+      }
+    </div>
+  </div>
+  }
+</nav>

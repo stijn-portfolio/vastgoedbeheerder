@@ -1,0 +1,6 @@
+@VastgoedAPI_HostAddress = http://localhost:5022
+
+GET {{VastgoedAPI_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

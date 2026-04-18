@@ -1,0 +1,21 @@
+/* Styling voor de range input in Webkit browsers (Chrome, Safari) */
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  background: #3b82f6; /* Tailwind blue-500 */
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+/* Styling voor de range input in Firefox */
+input[type="range"]::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  background: #3b82f6; /* Tailwind blue-500 */
+  border-radius: 50%;
+  cursor: pointer;
+  border: none;
+}
+

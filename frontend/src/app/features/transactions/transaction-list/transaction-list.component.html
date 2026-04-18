@@ -1,0 +1,282 @@
+<!-- src/app/features/transactions/transaction-list/transaction-list.component.html -->
+<div class="container mx-auto p-4">
+  @if(isLoading()) {
+  <div class="flex items-center justify-center h-screen">
+    <div class="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+  </div>
+  }
+
+  @if(errorMessage()) {
+  <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+    {{ errorMessage() }}
+  </div>
+  }
+
+  <div class="bg-white shadow-md rounded-lg overflow-hidden p-6">
+    <!-- Header met titel en vastgoed-specifieke info -->
+    <div class="flex justify-between items-center mb-6">
+      <div>
+        <h1 class="text-2xl font-bold">
+          @if(isVastgoedSpecificView()) {
+          Transacties voor {{ currentVastgoed()?.naam }}
+          } @else {
+          Financiële Transacties
+          }
+        </h1>
+        @if(isVastgoedSpecificView()) {
+        <p class="text-gray-600 mt-1">{{ currentVastgoed()?.adres }}</p>
+        }
+      </div>
+      <a [routerLink]="isVastgoedSpecificView() ? ['/vastgoed', selectedVastgoedId(), 'transactions', 'add'] : '/transactions/add'"
+        class="bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700">
+        Nieuwe Transactie
+      </a>
+    </div>
+
+    <!-- Filter sectie -->
+    <div class="bg-gray-50 rounded-lg p-4 mb-6 border border-gray-200">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-lg font-medium text-gray-700">Filters</h2>
+        <button (click)="resetFilters()" class="text-sm text-gray-600 hover:text-gray-900 flex items-center">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24"
+            stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
+          Reset filters
+        </button>
+      </div>
+
+      <form [formGroup]="filterForm" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <!-- Type filter -->
+        <div>
+          <label for="type" class="block text-sm font-medium text-gray-700 mb-1">Type</label>
+          <select id="type" formControlName="type"
+            class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+            <option [ngValue]="null">Alle types</option>
+            <option value="INKOMST">Inkomst</option>
+            <option value="UITGAVE">Uitgave</option>
+          </select>
+        </div>
+
+        <!-- Vastgoed filter (alleen tonen als niet in vastgoed-specifieke view) -->
+        @if(!isVastgoedSpecificView()) {
+        <div>
+          <label for="vastgoedId" class="block text-sm font-medium text-gray-700 mb-1">Vastgoed</label>
+          <select id="vastgoedId" formControlName="vastgoedId"
+            class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+            <option [ngValue]="null">Alle vastgoed</option>
+            @for (vastgoed of vastgoedOptions(); track vastgoed.id) {
+            <option [ngValue]="vastgoed.id">{{ vastgoed.naam }}</option>
+            }
+          </select>
+        </div>
+        }
+
+        <!-- Datum bereik filters -->
+        <div>
+          <label for="dateStart" class="block text-sm font-medium text-gray-700 mb-1">Vanaf datum</label>
+          <input type="date" id="dateStart" formControlName="dateStart"
+            class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+        </div>
+
+        <div>
+          <label for="dateEnd" class="block text-sm font-medium text-gray-700 mb-1">Tot datum</label>
+          <input type="date" id="dateEnd" formControlName="dateEnd"
+            class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+        </div>
+
+        <!-- Zoekbalk -->
+        <div class="md:col-span-2">
+          <label for="search" class="block text-sm font-medium text-gray-700 mb-1">Zoeken</label>
+          <div class="relative">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </div>
+            <input type="text" id="search" formControlName="search"
+              placeholder="Zoek op omschrijving, categorie of vastgoed"
+              class="w-full pl-10 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <!-- Financieel overzicht -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+      <!-- Inkomsten card -->
+      <div class="bg-gray-50 rounded-lg p-5 border border-gray-200">
+        <h3 class="text-lg font-medium text-gray-700 mb-2">Totale Inkomsten</h3>
+        <p class="text-2xl font-bold text-green-600">€{{ totalIncome() | customNumber }}</p>
+      </div>
+
+      <!-- Uitgaven card -->
+      <div class="bg-gray-50 rounded-lg p-5 border border-gray-200">
+        <h3 class="text-lg font-medium text-gray-700 mb-2">Totale Uitgaven</h3>
+        <p class="text-2xl font-bold text-red-600">€{{ totalExpenses() | customNumber }}</p>
+      </div>
+
+      <!-- Balans card -->
+      <div class="bg-gray-50 rounded-lg p-5 border border-gray-200">
+        <h3 class="text-lg font-medium text-gray-700 mb-2">Balans</h3>
+        <p class="text-2xl font-bold" [class.text-green-600]="balance() >= 0" [class.text-red-600]="balance() < 0">
+          €{{ balance() | customNumber }}
+        </p>
+      </div>
+    </div>
+
+    <!-- Sorteer opties -->
+    <div class="flex justify-end mb-4 space-x-2">
+      <div class="flex items-center">
+        <span class="text-sm text-gray-600 mr-2">Sorteren:</span>
+        <button (click)="sortBy('datum')"
+          class="text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 py-1 px-3 rounded mr-1"
+          [title]="'Sorteer op datum (' + (sortState()?.field === 'datum' && !sortState()?.ascending ? 'aflopend' : 'oplopend') + ')'">
+          Datum
+          <span *ngIf="sortState()?.field === 'datum'">
+            {{ sortState()?.ascending ? '↑' : '↓' }}
+          </span>
+        </button>
+        <button (click)="sortBy('bedrag')" class="text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 py-1 px-3 rounded"
+          [title]="'Sorteer op bedrag (' + (sortState()?.field === 'bedrag' && !sortState()?.ascending ? 'aflopend' : 'oplopend') + ')'">
+          Bedrag
+          <span *ngIf="sortState()?.field === 'bedrag'">
+            {{ sortState()?.ascending ? '↑' : '↓' }}
+          </span>
+        </button>
+      </div>
+    </div>
+
+    @if (totalItems() === 0)
+    { <div class="bg-gray-50 rounded-lg p-8 text-center border border-gray-200">
+      <p class="text-gray-500">Geen transacties gevonden.</p>
+      <p class="text-gray-500 mt-2">Pas je filters aan of klik op "Nieuwe Transactie" om te beginnen.</p>
+    </div>
+    }
+
+    <!-- Paginatie info -->
+    <div class="flex justify-between items-center mb-4">
+      <div class="text-sm text-gray-600">
+        @if (totalItems() > 0) {
+        Toon {{ ((currentPage() - 1) * pageSize()) + 1 }} tot {{ Math.min(currentPage() * pageSize(), totalItems()) }}
+        van {{ totalItems() }} transacties
+        } @else {
+        Geen transacties gevonden
+        }
+      </div>
+
+      @if (totalPages() > 1) {
+      <div class="text-sm text-gray-600">
+        Pagina {{ currentPage() }} van {{ totalPages() }}
+      </div>
+      }
+    </div>
+
+
+    @if (filteredTransactions().length > 0) {
+    <div class="overflow-x-auto">
+      <table class="min-w-full bg-white border border-gray-200 rounded-lg">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">Vastgoed
+            </th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">Datum
+            </th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">Bedrag
+            </th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">Type
+            </th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
+              Categorie</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
+              Omschrijving</th>
+            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider border-b">Acties
+            </th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-200">
+          @for (transaction of paginatedTransactions(); track transaction.id) {
+          <tr class="hover:bg-gray-50">
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+              <a [routerLink]="['/vastgoed', transaction.vastgoedId]" class="text-blue-600 hover:underline">
+                {{ getVastgoedNaam(transaction.vastgoedId) }}
+              </a>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ transaction.datum | date:'dd-MM-yyyy'}}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium"
+              [class.text-green-600]="transaction.type === 'INKOMST'"
+              [class.text-red-600]="transaction.type === 'UITGAVE'">
+              €{{ transaction.bedrag | customNumber }}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm">
+              <span class="px-2 py-1 rounded-full text-xs font-medium"
+                [class.bg-green-100]="transaction.type === 'INKOMST'"
+                [class.text-green-800]="transaction.type === 'INKOMST'"
+                [class.bg-red-100]="transaction.type === 'UITGAVE'"
+                [class.text-red-800]="transaction.type === 'UITGAVE'">
+                {{ transaction.type }}
+              </span>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ transaction.categorie }}</td>
+            <td class="px-6 py-4 text-sm text-gray-900">{{ transaction.omschrijving }}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+              <div class="flex justify-end space-x-2">
+                <a [routerLink]="['/transactions/edit', transaction.id]" class="text-blue-600 hover:text-blue-900">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                  </svg>
+                </a>
+                <button (click)="deleteTransaction(transaction.id)" class="text-red-600 hover:text-red-900">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                </button>
+              </div>
+            </td>
+          </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Paginatie controls -->
+    @if (totalPages() > 1) {
+    <div class="flex justify-center items-center mt-6 space-x-2">
+      <!-- Vorige knop -->
+      <button (click)="previousPage()" [disabled]="currentPage() === 1"
+        class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+        Vorige
+      </button>
+
+      <!-- Pagina nummers -->
+      @for (page of getPaginationNumbers(); track page) {
+      @if (page === '...') {
+      <span class="px-3 py-2 text-sm text-gray-500">...</span>
+      } @else {
+      <button (click)="goToPage(+page)" [class]="currentPage() === +page ? 
+            'px-3 py-2 text-sm font-medium text-white bg-blue-600 border border-blue-600 rounded-md' : 
+            'px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50'">
+        {{ page }}
+      </button>
+      }
+      }
+
+      <!-- Volgende knop -->
+      <button (click)="nextPage()" [disabled]="currentPage() === totalPages()"
+        class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+        Volgende
+      </button>
+    </div>
+    }
+
+    }
+  </div>
+</div>
